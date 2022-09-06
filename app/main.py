@@ -1,4 +1,7 @@
+from unittest import result
 from fastapi import FastAPI, APIRouter
+
+from typing import Optional
 
 
 DAILY_CALORIES = [
@@ -20,6 +23,12 @@ DAILY_CALORIES = [
         "ccal": 400,
         "day_id": 1,
     },
+    {
+        "id": 1,
+        "meal": "Йогурт",
+        "ccal": 150,
+        "day_id": 2,
+    },
 ]
 
 
@@ -39,7 +48,7 @@ def root() -> dict:
 @api_router.get("/calories/{day_id}", status_code=200)
 def fetch_day(*, day_id: int) -> dict:
     """
-    Get a list of meal and caloriesby Day ID
+    Получение списка блюд и общего числа калорий за день.
     """
 
     result = [
@@ -51,6 +60,22 @@ def fetch_day(*, day_id: int) -> dict:
             ccal_result.append(calorie["ccal"])
         result.append({"Калорий за день": sum(ccal_result)})
         return {f"День № {day_id}": result}
+
+
+@api_router.get("/search/", status_code=200)
+def search_meal(
+    keyword: Optional[str] = None, max_results: Optional[int] = 10
+) -> dict:
+    """
+    Поиск блюда по ключевому слову.
+    """
+    if not keyword:
+        return {"results": DAILY_CALORIES[:max_results]}
+
+    results = filter(
+        lambda meal: keyword.lower() in meal["meal"].lower(), DAILY_CALORIES
+    )
+    return {"results": list(results)[:max_results]}
 
 
 app.include_router(api_router)
