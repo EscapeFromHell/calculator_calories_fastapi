@@ -1,6 +1,6 @@
-from fastapi import FastAPI, APIRouter, Query
+from fastapi import FastAPI, APIRouter, Query, HTTPException
 
-from typing import Optional
+from typing import Optional, Any
 
 from app.schemas import DayMeal, Meal, MealCreate, MealSearchResults
 
@@ -38,7 +38,7 @@ app = FastAPI(title="Calories Calculator API", openapi_url="/openapi.json")
 api_router = APIRouter()
 
 
-# Сделать вывод статистики текущего дня. *Jinja
+# Сделать вывод статистики текущего дня. *Jinja **Optional
 @api_router.get("/", status_code=200)
 def root() -> dict:
     """
@@ -48,23 +48,26 @@ def root() -> dict:
 
 
 @api_router.get("/meal/{day_id}", status_code=200, response_model=DayMeal)
-def fetch_day(*, day_id: int) -> dict:
+def fetch_day(*, day_id: int) -> Any:
     """
     Получение списка блюд и общего числа калорий за день.
     """
 
     result = [meal for meal in DAILY_CALORIES if meal["day_id"] == day_id]
-    if result:
-        calories_list = []
-        for calorie in result:
-            calories_list.append(calorie["calories"])
-        daily_calories = sum(calories_list)
-        results = {
-            "day_id": day_id,
-            "meals": list(result),
-            "daily_calories": daily_calories
-        }
-        return results
+    if not result:
+        raise HTTPException(
+            status_code=404, detail=f"Day with ID {day_id} not found"
+        )
+    calories_list = []
+    for calorie in result:
+        calories_list.append(calorie["calories"])
+    daily_calories = sum(calories_list)
+    results = {
+        "day_id": day_id,
+        "meals": list(result),
+        "daily_calories": daily_calories
+    }
+    return results
 
 
 @api_router.get(
@@ -75,7 +78,7 @@ def search_meal(
     *,
     keyword: Optional[str] = Query(None, min_length=3, example="йогурт"),
     max_results: Optional[int] = 10
-) -> dict:
+) -> Any:
     """
     Поиск блюда по ключевому слову.
     """
@@ -85,6 +88,10 @@ def search_meal(
     results = filter(
         lambda meal: keyword.lower() in meal["name"].lower(), DAILY_CALORIES
     )
+    if list(results) == []:
+        raise HTTPException(
+            status_code=404, detail="Meal not found"
+        )
     return {"results": list(results)[:max_results]}
 
 
@@ -107,7 +114,6 @@ def create_meal(*, meal_in: MealCreate) -> dict:
         day_id=meal_in.day_id,
     )
     DAILY_CALORIES.append(meal_entry.dict())
-
     return meal_entry
 
 
