@@ -88,10 +88,6 @@ def search_meal(
     results = filter(
         lambda meal: keyword.lower() in meal["name"].lower(), DAILY_CALORIES
     )
-    if list(results) == []:
-        raise HTTPException(
-            status_code=404, detail="Meal not found"
-        )
     return {"results": list(results)[:max_results]}
 
 

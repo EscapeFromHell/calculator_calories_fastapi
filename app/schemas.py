@@ -7,6 +7,7 @@ class Meal(BaseModel):
     id: int
     name: str
     calories: int
+    day_id: int
 
 
 class DayMeal(BaseModel):
