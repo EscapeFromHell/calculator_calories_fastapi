@@ -1,4 +1,3 @@
-from unittest import result
 from fastapi import FastAPI, APIRouter
 
 from typing import Optional
@@ -7,25 +6,25 @@ from typing import Optional
 DAILY_CALORIES = [
     {
         "id": 1,
-        "meal": "Яичница",
+        "name": "Яичница",
         "ccal": 500,
         "day_id": 1,
     },
     {
         "id": 2,
-        "meal": "Сок",
+        "name": "Сок",
         "ccal": 200,
         "day_id": 1,
     },
     {
         "id": 3,
-        "meal": "Куриная грудка и гречка",
+        "name": "Куриная грудка и гречка",
         "ccal": 400,
         "day_id": 1,
     },
     {
         "id": 1,
-        "meal": "Йогурт",
+        "name": "Йогурт",
         "ccal": 150,
         "day_id": 2,
     },
@@ -37,6 +36,7 @@ app = FastAPI(title="Calories Calculator API", openapi_url="/openapi.json")
 api_router = APIRouter()
 
 
+# Сделать вывод статистики текущего дня.
 @api_router.get("/", status_code=200)
 def root() -> dict:
     """
@@ -62,7 +62,7 @@ def fetch_day(*, day_id: int) -> dict:
         return {f"День № {day_id}": result}
 
 
-@api_router.get("/search/", status_code=200)
+@api_router.get("/search/meal/", status_code=200)
 def search_meal(
     keyword: Optional[str] = None, max_results: Optional[int] = 10
 ) -> dict:
@@ -73,9 +73,15 @@ def search_meal(
         return {"results": DAILY_CALORIES[:max_results]}
 
     results = filter(
-        lambda meal: keyword.lower() in meal["meal"].lower(), DAILY_CALORIES
+        lambda meal: keyword.lower() in meal["name"].lower(), DAILY_CALORIES
     )
     return {"results": list(results)[:max_results]}
+
+
+# Написать функцию для поиска day_id по дате.
+@api_router.get("/search/day/", status_code=200)
+def search_day():
+    pass
 
 
 app.include_router(api_router)
