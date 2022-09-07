@@ -28,7 +28,8 @@ class MealInDBBase(MealBase):
 
 
 class Meal(MealInDBBase):
-    pass
+    name: str
+    calories: int
 
 
 class MealInDB(MealInDBBase):

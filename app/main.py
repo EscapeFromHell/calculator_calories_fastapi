@@ -2,17 +2,20 @@ from fastapi import FastAPI, APIRouter, Query, HTTPException
 
 from typing import Optional, Any
 
-from app.schemas_temp import Day, DayMeal, DaySearchResults, Meal, MealCreate, MealSearchResults
+from app.schemas.day import DayBase, DayMeal, DaySearchResults
+from app.schemas.meal import MealBase, MealCreate, MealSearchResults
 
 
 DAYS = [
     {
         "date": "06.09.2022",
         "weight": 63.5,
+        "id": 1,
     },
     {
         "date": "07.09.2022",
         "weight": 64.2,
+        "id": 2,
     },
 ]
 
@@ -20,21 +23,25 @@ DAILY_CALORIES = [
     {
         "name": "Яичница",
         "calories": 500,
+        "id": 1,
         "meal_date": "07.09.2022",
     },
     {
         "name": "Сок",
         "calories": 200,
+        "id": 2,
         "meal_date": "07.09.2022",
     },
     {
         "name": "Куриная грудка и гречка",
         "calories": 400,
+        "id": 3,
         "meal_date": "07.09.2022",
     },
     {
         "name": "Йогурт",
         "calories": 150,
+        "id": 4,
         "meal_date": "07.09.2022",
     },
 ]
@@ -117,12 +124,12 @@ def search_day(
     return {"results": list(results)[:max_results]}
 
 
-@api_router.post("/meal/", status_code=201, response_model=Meal)
+@api_router.post("/meal/", status_code=201, response_model=MealBase)
 def create_meal(*, meal_in: MealCreate) -> dict:
     """
     Добавление блюда. (in memory only)
     """
-    meal_entry = Meal(
+    meal_entry = MealBase(
         name=meal_in.name,
         calories=meal_in.calories,
         meal_date=meal_in.meal_date,
@@ -131,12 +138,12 @@ def create_meal(*, meal_in: MealCreate) -> dict:
     return meal_entry
 
 
-@api_router.post("/day/", status_code=201, response_model=Day)
-def create_day(*, day_in: Day) -> dict:
+@api_router.post("/day/", status_code=201, response_model=DayBase)
+def create_day(*, day_in: DayBase) -> dict:
     """
     Добавление дня. (in memory only)
     """
-    day_entry = Day(
+    day_entry = DayBase(
         date=day_in.date,
         weight=day_in.weight
     )

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from typing import Optional, Sequence
+from typing import Sequence
 
 from app.schemas.meal import Meal
 
@@ -10,14 +10,8 @@ class DayBase(BaseModel):
     weight: float
 
 
-class DayMeal(DayBase):
-    date: str
-    meals: Sequence[Meal]
-    daily_calories: int
-
-
 class DayInDBBase(DayBase):
-    id: Optional[int] = None
+    id: int
 
     class Config:
         orm_mode = True
@@ -25,6 +19,12 @@ class DayInDBBase(DayBase):
 
 class Day(DayInDBBase):
     pass
+
+
+class DayMeal(Day):
+    date: str
+    meals: Sequence[Meal]
+    daily_calories: int
 
 
 class DaySearchResults(BaseModel):
