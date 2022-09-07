@@ -4,13 +4,12 @@ from typing import Sequence
 
 
 class Meal(BaseModel):
-    id: int
     name: str
     calories: int
 
 
 class DayMeal(BaseModel):
-    day_id: int
+    date: str
     meals: Sequence[Meal]
     daily_calories: int
 
@@ -22,11 +21,13 @@ class MealSearchResults(BaseModel):
 class MealCreate(BaseModel):
     name: str
     calories: int
-    day_id: int
+    date: str
 
 
-# class Day(BaseModel):
-#     day_id: int
-#     date: str
-#     weight: float
-#     meals: list[Meal]
+class Day(BaseModel):
+    date: str
+    weight: float
+
+
+class DaySearchResults(BaseModel):
+    results: Sequence[Day]

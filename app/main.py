@@ -2,33 +2,40 @@ from fastapi import FastAPI, APIRouter, Query, HTTPException
 
 from typing import Optional, Any
 
-from app.schemas import DayMeal, Meal, MealCreate, MealSearchResults
+from app.schemas_temp import Day, DayMeal, DaySearchResults, Meal, MealCreate, MealSearchResults
 
+
+DAYS = [
+    {
+        "date": "06.09.2022",
+        "weight": 63.5,
+    },
+    {
+        "date": "07.09.2022",
+        "weight": 64.2,
+    },
+]
 
 DAILY_CALORIES = [
     {
-        "id": 1,
         "name": "Яичница",
         "calories": 500,
-        "day_id": 1,
+        "date": "07.09.2022",
     },
     {
-        "id": 2,
         "name": "Сок",
         "calories": 200,
-        "day_id": 1,
+        "date": "07.09.2022",
     },
     {
-        "id": 3,
         "name": "Куриная грудка и гречка",
         "calories": 400,
-        "day_id": 1,
+        "date": "07.09.2022",
     },
     {
-        "id": 4,
         "name": "Йогурт",
         "calories": 150,
-        "day_id": 1,
+        "date": "07.09.2022",
     },
 ]
 
@@ -47,23 +54,22 @@ def root() -> dict:
     return {"Скоро тут будет": "Калькулятор калорий"}
 
 
-@api_router.get("/meal/{day_id}", status_code=200, response_model=DayMeal)
-def fetch_day(*, day_id: int) -> Any:
+@api_router.get("/meal/{date}", status_code=200, response_model=DayMeal)
+def fetch_day(*, date: str) -> Any:
     """
     Получение списка блюд и общего числа калорий за день.
     """
-
-    result = [meal for meal in DAILY_CALORIES if meal["day_id"] == day_id]
+    result = [meal for meal in DAILY_CALORIES if meal["date"] == date]
     if not result:
         raise HTTPException(
-            status_code=404, detail=f"Day with ID {day_id} not found"
+            status_code=404, detail=f"Day {date} not found"
         )
     calories_list = []
     for calorie in result:
         calories_list.append(calorie["calories"])
     daily_calories = sum(calories_list)
     results = {
-        "day_id": day_id,
+        "date": date,
         "meals": list(result),
         "daily_calories": daily_calories
     }
@@ -91,10 +97,24 @@ def search_meal(
     return {"results": list(results)[:max_results]}
 
 
-# Написать функцию для поиска day_id по дате.
-@api_router.get("/search/day/", status_code=200)
-def search_day():
-    pass
+# Настроить диапазон поиска. **Optional
+@api_router.get(
+    "/search/day/", status_code=200,
+    response_model=DaySearchResults
+)
+def search_day(
+    *,
+    date: Optional[str] = Query(None, min_length=3, example="07.09.2022"),
+    max_results: Optional[int] = 10
+) -> Any:
+    """
+    Поиск дней.
+    """
+    if not date:
+        return {"results": DAYS[:max_results]}
+
+    results = filter(lambda meal: date in meal["date"], DAYS)
+    return {"results": list(results)[:max_results]}
 
 
 @api_router.post("/meal/", status_code=201, response_model=Meal)
@@ -102,15 +122,26 @@ def create_meal(*, meal_in: MealCreate) -> dict:
     """
     Добавление блюда. (in memory only)
     """
-    new_entry_id = len(DAILY_CALORIES) + 1
     meal_entry = Meal(
-        id=new_entry_id,
         name=meal_in.name,
         calories=meal_in.calories,
-        day_id=meal_in.day_id,
+        date=meal_in.date,
     )
     DAILY_CALORIES.append(meal_entry.dict())
     return meal_entry
+
+
+@api_router.post("/day/", status_code=201, response_model=Day)
+def create_day(*, day_in: Day) -> dict:
+    """
+    Добавление дня. (in memory only)
+    """
+    day_entry = Day(
+        date=day_in.date,
+        weight=day_in.weight
+    )
+    DAYS.append(day_entry)
+    return day_entry
 
 
 app.include_router(api_router)
