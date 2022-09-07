@@ -20,22 +20,22 @@ DAILY_CALORIES = [
     {
         "name": "Яичница",
         "calories": 500,
-        "date": "07.09.2022",
+        "meal_date": "07.09.2022",
     },
     {
         "name": "Сок",
         "calories": 200,
-        "date": "07.09.2022",
+        "meal_date": "07.09.2022",
     },
     {
         "name": "Куриная грудка и гречка",
         "calories": 400,
-        "date": "07.09.2022",
+        "meal_date": "07.09.2022",
     },
     {
         "name": "Йогурт",
         "calories": 150,
-        "date": "07.09.2022",
+        "meal_date": "07.09.2022",
     },
 ]
 
@@ -59,7 +59,7 @@ def fetch_day(*, date: str) -> Any:
     """
     Получение списка блюд и общего числа калорий за день.
     """
-    result = [meal for meal in DAILY_CALORIES if meal["date"] == date]
+    result = [meal for meal in DAILY_CALORIES if meal["meal_date"] == date]
     if not result:
         raise HTTPException(
             status_code=404, detail=f"Day {date} not found"
@@ -125,7 +125,7 @@ def create_meal(*, meal_in: MealCreate) -> dict:
     meal_entry = Meal(
         name=meal_in.name,
         calories=meal_in.calories,
-        date=meal_in.date,
+        meal_date=meal_in.meal_date,
     )
     DAILY_CALORIES.append(meal_entry.dict())
     return meal_entry

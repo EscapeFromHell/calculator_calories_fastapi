@@ -21,7 +21,7 @@ class MealSearchResults(BaseModel):
 class MealCreate(BaseModel):
     name: str
     calories: int
-    date: str
+    meal_date: str
 
 
 class Day(BaseModel):

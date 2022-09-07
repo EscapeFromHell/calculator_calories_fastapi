@@ -1,12 +1,13 @@
-from sqlalchemy import Column, Float, String
+from sqlalchemy import Column, Float, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
 
 
 class Day(Base):
-    date: Column(String(10), nullable=False)
-    weight: Column(Float, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(String(10), nullable=False)
+    weight = Column(Float, nullable=False)
     meals = relationship(
         "Meal",
         cascade="all,delete-orphan",
