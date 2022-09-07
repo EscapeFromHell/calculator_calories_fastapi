@@ -14,7 +14,7 @@ class MealCreate(MealBase):
     meal_date: str
 
 
-class RecipeUpdate(MealBase):
+class MealUpdate(MealBase):
     name: str
     calories: int
 

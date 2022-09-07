@@ -10,6 +10,15 @@ class DayBase(BaseModel):
     weight: float
 
 
+class DayCreate(DayBase):
+    date: str
+    weight: float
+
+
+class DayUpdate(DayBase):
+    ...
+
+
 class DayInDBBase(DayBase):
     id: int
 
