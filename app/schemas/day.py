@@ -7,7 +7,7 @@ from app.schemas.meal import Meal
 
 class DayBase(BaseModel):
     date: str
-    weight: float
+    # weight: float
 
 
 class DayCreate(DayBase):
@@ -16,7 +16,8 @@ class DayCreate(DayBase):
 
 
 class DayUpdate(DayBase):
-    ...
+    date: str
+    weight: float
 
 
 class DayInDBBase(DayBase):
