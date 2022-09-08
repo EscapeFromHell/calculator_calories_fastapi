@@ -33,15 +33,14 @@ def init_db(db: Session) -> None:
                 "Skipping creating superuser. User with email "
                 f"{FIRST_SUPERUSER} already exists. "
             )
-        if not user.recipes:
-            for recipe in RECIPES:
-                recipe_in = schemas.RecipeCreate(
-                    label=recipe["label"],
-                    source=recipe["source"],
-                    url=recipe["url"],
+        if not user.date:
+            for day in DAYS:
+                day_in = schemas.DayCreate(
+                    date=day["date"],
+                    weight=day["weight"],
                     submitter_id=user.id,
                 )
-                crud.recipe.create(db, obj_in=recipe_in)
+                crud.day.create(db, obj_in=day_in)
     else:
         logger.warning(
             "Skipping creating superuser.  FIRST_SUPERUSER needs to be "
