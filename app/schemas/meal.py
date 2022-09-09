@@ -12,7 +12,6 @@ class MealCreate(MealBase):
     name: str
     calories: int
     day_id: int
-    # meal_date: str
 
 
 class MealUpdate(MealBase):
@@ -23,7 +22,6 @@ class MealUpdate(MealBase):
 class MealInDBBase(MealBase):
     id: int
     day_id: int
-    # meal_date: str
 
     class Config:
         orm_mode = True

@@ -7,13 +7,11 @@ from app.schemas.meal import Meal
 
 class DayBase(BaseModel):
     date: str
-    # weight: float
 
 
 class DayCreate(DayBase):
     date: str
     weight: float
-    submitter_id: int
 
 
 class DayUpdate(DayBase):
@@ -23,6 +21,7 @@ class DayUpdate(DayBase):
 
 class DayInDBBase(DayBase):
     id: int
+    weight: float
 
     class Config:
         orm_mode = True
@@ -33,7 +32,6 @@ class Day(DayInDBBase):
 
 
 class DayMeal(Day):
-    date: str
     meals: Sequence[Meal]
     daily_calories: int
 

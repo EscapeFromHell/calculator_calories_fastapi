@@ -1,14 +1,14 @@
-from fastapi import FastAPI, APIRouter, Query, HTTPException, Request, Depends
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Depends
 
 from typing import Optional, Any
 from pathlib import Path
 from sqlalchemy.orm import Session
 
-
-from app.schemas.day import DayBase, DayMeal, DaySearchResults
-from app.schemas.meal import MealBase, MealCreate, MealSearchResults
 from app import deps
-from app import crud
+from app.schemas.day import Day, DayCreate, DayMeal, DaySearchResults
+from app.schemas.meal import Meal, MealCreate, MealSearchResults
+from app.crud.crud_day import day as day_crud
+from app.crud.crud_meal import meal as meal_crud
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,26 +29,24 @@ def root() -> dict:
     return {"Скоро тут будет": "Калькулятор калорий"}
 
 
-@api_router.get("/meal/{date}", status_code=200, response_model=DayMeal)
-def fetch_day(*, date: str) -> Any:
+@api_router.get("/meal/{day_id}", status_code=200, response_model=DayMeal)
+def fetch_day(*, day_id: int, db: Session = Depends(deps.get_db),) -> Any:
     """
     Получение списка блюд и общего числа калорий за день.
     """
-    result = [meal for meal in DAILY_CALORIES if meal["meal_date"] == date]
-    if not result:
+    day = day_crud.get(db=db, id=day_id)
+    if not day:
         raise HTTPException(
-            status_code=404, detail=f"Day {date} not found"
+            status_code=404, detail=f"Day with ID {day_id} not found"
         )
+    meals = day.meals
     calories_list = []
-    for calorie in result:
-        calories_list.append(calorie["calories"])
+    for meal in meals:
+        calories_list.append(meal.calories)
     daily_calories = sum(calories_list)
-    results = {
-        "date": date,
-        "meals": list(result),
-        "daily_calories": daily_calories
-    }
-    return results
+    day.daily_calories = daily_calories
+
+    return day
 
 
 @api_router.get(
@@ -58,16 +56,18 @@ def fetch_day(*, date: str) -> Any:
 def search_meal(
     *,
     keyword: Optional[str] = Query(None, min_length=3, example="йогурт"),
-    max_results: Optional[int] = 10
-) -> Any:
+    max_results: Optional[int] = 10,
+    db: Session = Depends(deps.get_db),
+) -> dict:
     """
     Поиск блюда по ключевому слову.
     """
+    meals = meal_crud.get_multi(db=db, limit=max_results)
     if not keyword:
-        return {"results": DAILY_CALORIES[:max_results]}
+        return {"results": meals}
 
     results = filter(
-        lambda meal: keyword.lower() in meal["name"].lower(), DAILY_CALORIES
+        lambda meal: keyword.lower() in meal.name.lower(), meals
     )
     return {"results": list(results)[:max_results]}
 
@@ -80,43 +80,44 @@ def search_meal(
 def search_day(
     *,
     date: Optional[str] = Query(None, min_length=3, example="07.09.2022"),
-    max_results: Optional[int] = 10
-) -> Any:
+    max_results: Optional[int] = 10,
+    db: Session = Depends(deps.get_db),
+) -> dict:
     """
     Поиск дней.
     """
+    days = day_crud.get_multi(db=db, limit=max_results)
     if not date:
-        return {"results": DAYS[:max_results]}
+        return {"results": days}
 
-    results = filter(lambda meal: date in meal["date"], DAYS)
+    results = filter(
+        lambda day: date in day.date, days
+    )
     return {"results": list(results)[:max_results]}
 
 
-@api_router.post("/meal/", status_code=201, response_model=MealBase)
-def create_meal(*, meal_in: MealCreate) -> dict:
+@api_router.post("/meal/", status_code=201, response_model=Meal)
+def create_meal(
+    *, meal_in: MealCreate, db: Session = Depends(deps.get_db)
+) -> dict:
     """
-    Добавление блюда. (in memory only)
+    Добавление блюда.
     """
-    meal_entry = MealBase(
-        name=meal_in.name,
-        calories=meal_in.calories,
-        meal_date=meal_in.meal_date,
-    )
-    DAILY_CALORIES.append(meal_entry.dict())
-    return meal_entry
+    meal = meal_crud.create(db=db, obj_in=meal_in)
+
+    return meal
 
 
-@api_router.post("/day/", status_code=201, response_model=DayBase)
-def create_day(*, day_in: DayBase) -> dict:
+@api_router.post("/day/", status_code=201, response_model=Day)
+def create_day(
+    *, day_in: DayCreate, db: Session = Depends(deps.get_db)
+) -> dict:
     """
-    Добавление дня. (in memory only)
+    Добавление дня.
     """
-    day_entry = DayBase(
-        date=day_in.date,
-        weight=day_in.weight
-    )
-    DAYS.append(day_entry)
-    return day_entry
+    day = day_crud.create(db=db, obj_in=day_in)
+
+    return day
 
 
 app.include_router(api_router)

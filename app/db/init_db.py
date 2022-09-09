@@ -2,13 +2,8 @@ import logging
 from sqlalchemy.orm import Session
 
 from app.crud.crud_user import user as us
-from app.crud.crud_meal import meal as ml
-from app.crud.crud_day import day as d
 from app.schemas.user import UserCreate
-from app.schemas.day import DayCreate
-from app.schemas.meal import MealCreate
 from app.db import base  # noqa: F401
-from app.db_data import DAYS, MEALS
 
 
 logger = logging.getLogger(__name__)
@@ -39,21 +34,6 @@ def init_db(db: Session) -> None:
                 "Skipping creating superuser. User with email "
                 f"{FIRST_SUPERUSER} already exists. "
             )
-        if not user.date:
-            for day in DAYS:
-                day_in = DayCreate(
-                    date=day["date"],
-                    weight=day["weight"],
-                    submitter_id=user.id,
-                )
-                d.create(db, obj_in=day_in)
-            for meal in MEALS:
-                meal_in = MealCreate(
-                    name=meal["name"],
-                    calories=meal["calories"],
-                    meal_date=meal["meal_date"],
-                )
-                ml.create(db, obj_in=meal_in)
     else:
         logger.warning(
             "Skipping creating superuser.  FIRST_SUPERUSER needs to be "
