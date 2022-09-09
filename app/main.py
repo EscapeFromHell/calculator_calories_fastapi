@@ -1,50 +1,18 @@
-from fastapi import FastAPI, APIRouter, Query, HTTPException
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Request, Depends
 
 from typing import Optional, Any
+from pathlib import Path
+from sqlalchemy.orm import Session
+
 
 from app.schemas.day import DayBase, DayMeal, DaySearchResults
 from app.schemas.meal import MealBase, MealCreate, MealSearchResults
+from app import deps
+from app import crud
 
 
-DAYS = [
-    {
-        "date": "06.09.2022",
-        "weight": 63.5,
-        "id": 1,
-    },
-    {
-        "date": "07.09.2022",
-        "weight": 64.2,
-        "id": 2,
-    },
-]
-
-DAILY_CALORIES = [
-    {
-        "name": "Яичница",
-        "calories": 500,
-        "id": 1,
-        "meal_date": "07.09.2022",
-    },
-    {
-        "name": "Сок",
-        "calories": 200,
-        "id": 2,
-        "meal_date": "07.09.2022",
-    },
-    {
-        "name": "Куриная грудка и гречка",
-        "calories": 400,
-        "id": 3,
-        "meal_date": "07.09.2022",
-    },
-    {
-        "name": "Йогурт",
-        "calories": 150,
-        "id": 4,
-        "meal_date": "07.09.2022",
-    },
-]
+ROOT = Path(__file__).resolve().parent.parent
+BASE_PATH = Path(__file__).resolve().parent
 
 
 app = FastAPI(title="Calories Calculator API", openapi_url="/openapi.json")

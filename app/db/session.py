@@ -2,8 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 
-SQLACHEMY_DATABASE_URI = "postgresql+psycopg2://root:pass@localhost/mydb"
+SQLALCHEMY_DATABASE_URI = "postgresql+psycopg2://postgres:admin@127.0.0.1/postgres_db"
 
 
-engine = create_engine(SQLACHEMY_DATABASE_URI)
+engine = create_engine(SQLALCHEMY_DATABASE_URI)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

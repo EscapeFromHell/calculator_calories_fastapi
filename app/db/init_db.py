@@ -1,9 +1,15 @@
 import logging
 from sqlalchemy.orm import Session
 
-from app import crud, schemas
+from app.crud.crud_user import user as us
+from app.crud.crud_meal import meal as ml
+from app.crud.crud_day import day as d
+from app.schemas.user import UserCreate
+from app.schemas.day import DayCreate
+from app.schemas.meal import MealCreate
 from app.db import base  # noqa: F401
 from app.db_data import DAYS, MEALS
+
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +26,14 @@ def init_db(db: Session) -> None:
     # the tables un-commenting the next line
     # Base.metadata.create_all(bind=engine)
     if FIRST_SUPERUSER:
-        user = crud.user.get_by_email(db, email=FIRST_SUPERUSER)
+        user = us.get_by_email(db, email=FIRST_SUPERUSER)
         if not user:
-            user_in = schemas.UserCreate(
+            user_in = UserCreate(
                 full_name="Initial Super User",
                 email=FIRST_SUPERUSER,
                 is_superuser=True,
             )
-            user = crud.user.create(db, obj_in=user_in)  # noqa: F841
+            user = us.create(db, obj_in=user_in)  # noqa: F841
         else:
             logger.warning(
                 "Skipping creating superuser. User with email "
@@ -35,12 +41,19 @@ def init_db(db: Session) -> None:
             )
         if not user.date:
             for day in DAYS:
-                day_in = schemas.DayCreate(
+                day_in = DayCreate(
                     date=day["date"],
                     weight=day["weight"],
                     submitter_id=user.id,
                 )
-                crud.day.create(db, obj_in=day_in)
+                d.create(db, obj_in=day_in)
+            for meal in MEALS:
+                meal_in = MealCreate(
+                    name=meal["name"],
+                    calories=meal["calories"],
+                    meal_date=meal["meal_date"],
+                )
+                ml.create(db, obj_in=meal_in)
     else:
         logger.warning(
             "Skipping creating superuser.  FIRST_SUPERUSER needs to be "

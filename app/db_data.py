@@ -16,24 +16,24 @@ MEALS = [
         "id": 1,
         "name": "Яичница",
         "calories": 500,
-        "meal_date": "07.09.2022",
+        "day_id": "2",
     },
     {
         "id": 2,
         "name": "Сок",
         "calories": 200,
-        "meal_date": "07.09.2022",
+        "day_id": "2",
     },
     {
         "id": 3,
         "name": "Куриная грудка и гречка",
         "calories": 400,
-        "meal_date": "07.09.2022",
+        "day_id": "2",
     },
     {
         "id": 4,
         "name": "Йогурт",
         "calories": 150,
-        "meal_date": "07.09.2022",
+        "day_id": "2",
     },
 ]
