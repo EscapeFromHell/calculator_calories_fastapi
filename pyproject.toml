@@ -11,12 +11,12 @@ uvicorn = "0.18.3"
 fastapi = "0.82.0"
 python-multipart = "~0.0.5"
 pydantic = {extras = ["email"], version = "1.10.2"}
-Jinja2 = "^3.0.1"
 SQLAlchemy = "1.4.40"
 alembic = "1.8.1"
 tenacity = "^8.0.1"
 greenlet = "^1.1.2"
 psycopg2 = "2.9.3"
+httpx = "0.23.0"
 
 [build-system]
 requires = ["poetry-core"]

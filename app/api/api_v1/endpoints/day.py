@@ -1,8 +1,8 @@
 import datetime as dt
+from typing import Any, Optional
 
-from fastapi import APIRouter, Query, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from typing import Optional, Any
 
 from app.api import deps
 from app.schemas.day import Day, DayCreate, DayMeal, DaySearchResults
