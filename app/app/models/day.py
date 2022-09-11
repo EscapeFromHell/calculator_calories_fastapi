@@ -6,7 +6,7 @@ from app.db.base_class import Base
 
 class Day(Base):
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(String(10), nullable=False)
+    date = Column(String(10), nullable=False, unique=True)
     weight = Column(Float, nullable=False)
     meals = relationship(
         "Meal",

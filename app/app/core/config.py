@@ -1,3 +1,4 @@
+import datetime as dt
 import pathlib
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, validator
@@ -5,7 +6,7 @@ from typing import List, Optional, Union
 
 
 # Project Directories
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
@@ -25,6 +26,7 @@ class Settings(BaseSettings):
 
     SQLALCHEMY_DATABASE_URI: Optional[str] = "postgresql+psycopg2://postgres:admin@127.0.0.1/postgres_db"
     FIRST_SUPERUSER: EmailStr = "admin@mealapi.com"
+    TODAY = dt.datetime.today().strftime("%d.%m.%Y")
 
     class Config:
         case_sensitive = True

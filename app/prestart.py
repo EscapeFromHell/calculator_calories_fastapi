@@ -4,7 +4,7 @@ import sys
 from alembic.config import Config
 from alembic import command
 
-from app.main import ROOT
+from app.core.config import ROOT
 
 
 alembic_cfg = Config(ROOT / "alembic.ini")

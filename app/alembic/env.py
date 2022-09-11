@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
 from app.db.base import Base  # noqa
-from app.db.session import SQLALCHEMY_DATABASE_URI
+from app.core.config import settings
 
 
 config = context.config
@@ -16,7 +16,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    return SQLALCHEMY_DATABASE_URI
+    return settings.SQLALCHEMY_DATABASE_URI
 
 
 def run_migrations_offline():

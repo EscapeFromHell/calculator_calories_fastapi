@@ -1,15 +1,12 @@
-import datetime as dt
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.api import deps
-from app.schemas.day import Day, DayCreate, DayMeal, DaySearchResults
+from app.core.config import settings as s
 from app.crud.crud_day import day as day_crud
-
-
-TODAY = dt.datetime.today().strftime("%d.%m.%Y")
+from app.schemas.day import Day, DayCreate, DayMeal, DaySearchResults
 
 
 router = APIRouter()
@@ -38,7 +35,7 @@ def fetch_day(*, day_id: int, db: Session = Depends(deps.get_db),) -> Any:
 @router.get("/search/", status_code=200, response_model=DaySearchResults)
 def search_day(
     *,
-    date: Optional[str] = Query(None, min_length=3, example=f"{TODAY}"),
+    date: Optional[str] = Query(None, min_length=3, example=f"{s.TODAY}"),
     max_results: Optional[int] = 10,
     db: Session = Depends(deps.get_db),
 ) -> dict:

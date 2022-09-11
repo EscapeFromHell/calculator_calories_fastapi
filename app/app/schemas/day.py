@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Sequence
 
 from app.schemas.meal import Meal
+from app.core.config import settings
 
 
 class DayBase(BaseModel):
@@ -10,7 +11,7 @@ class DayBase(BaseModel):
 
 
 class DayCreate(DayBase):
-    date: str
+    date: str = settings.TODAY
     weight: float
 
 
