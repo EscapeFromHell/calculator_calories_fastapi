@@ -23,12 +23,10 @@ def fetch_day(*, day_id: int, db: Session = Depends(deps.get_db),) -> Any:
             status_code=404, detail=f"Day with ID {day_id} not found"
         )
     meals = day.meals
-    calories_list = []
+    daily_calories = 0
     for meal in meals:
-        calories_list.append(meal.calories)
-    daily_calories = sum(calories_list)
+        daily_calories += meal.calories
     day.daily_calories = daily_calories
-
     return day
 
 
