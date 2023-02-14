@@ -1,40 +1,22 @@
 from pydantic import BaseModel
-
-from typing import Sequence
+from pydantic import PositiveInt
 
 
 class MealBase(BaseModel):
     name: str
-    calories: int
+    calories: PositiveInt
 
 
 class MealCreate(MealBase):
-    name: str
-    calories: int
-    day_id: int
+    pass
 
 
 class MealUpdate(MealBase):
-    name: str
-    calories: int
+    pass
 
 
 class MealInDBBase(MealBase):
     id: int
-    day_id: int
 
     class Config:
         orm_mode = True
-
-
-class Meal(MealInDBBase):
-    name: str
-    calories: int
-
-
-class MealInDB(MealInDBBase):
-    pass
-
-
-class MealSearchResults(BaseModel):
-    results: Sequence[Meal]

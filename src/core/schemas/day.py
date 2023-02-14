@@ -1,41 +1,33 @@
+import datetime
+
 from pydantic import BaseModel
+from pydantic import schema, PositiveInt, PositiveFloat
 
 from typing import Sequence
 
-from app.schemas.meal import Meal
-from app.core.config import settings
+from src.core.schemas import MealBase
 
 
 class DayBase(BaseModel):
-    date: str
+    date: schema.date = datetime.date.today()
+    weight: PositiveFloat
 
 
 class DayCreate(DayBase):
-    date: str = settings.TODAY
-    weight: float
+    pass
 
 
 class DayUpdate(DayBase):
-    date: str
-    weight: float
+    pass
 
 
-class DayInDBBase(DayBase):
+class DayInDB(DayBase):
     id: int
-    weight: float
 
     class Config:
         orm_mode = True
 
 
-class Day(DayInDBBase):
-    pass
-
-
-class DayMeal(Day):
-    meals: Sequence[Meal]
-    daily_calories: int
-
-
-class DaySearchResults(BaseModel):
-    results: Sequence[Day]
+class Day(DayInDB):
+    meals: Sequence[MealBase]
+    calories_sum: PositiveInt
