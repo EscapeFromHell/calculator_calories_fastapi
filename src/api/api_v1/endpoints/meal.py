@@ -1,43 +1,41 @@
-from typing import Optional
+import datetime
+from typing import Optional, Sequence
 
-from fastapi import APIRouter, Query, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, Query
+from pydantic import schema
 
-from app.api import deps
-from app.crud.crud_meal import meal as meal_crud
-from app.schemas.meal import Meal, MealCreate, MealSearchResults
-
+from src.core.repository import DayMealRepository
+from src.core.schemas import Meal, MealCreate, MealUpdate
+from src.deps import day_meal_repo as deps_day_meal_repo
 
 router = APIRouter()
 
 
-@router.get("/search/", status_code=200, response_model=MealSearchResults)
+@router.get("/", status_code=200, response_model=Sequence[Meal])
 def search_meal(
     *,
     keyword: Optional[str] = Query(None, min_length=3, example="йогурт"),
     max_results: Optional[int] = 10,
-    db: Session = Depends(deps.get_db),
-) -> dict:
-    """
-    Поиск блюда по ключевому слову.
-    """
-    meals = meal_crud.get_multi(db=db, limit=max_results)
-    if not keyword:
-        return {"results": meals}
-
-    results = filter(
-        lambda meal: keyword.lower() in meal.name.lower(), meals
-    )
-    return {"results": list(results)[:max_results]}
+    day_meal_repo: DayMealRepository = Depends(deps_day_meal_repo)
+) -> Sequence[Meal]:
+    """Поиск блюда по ключевому слову."""
+    return day_meal_repo.search_meal(keyword=keyword, max_results=max_results)
 
 
-@router.post("/", status_code=201, response_model=Meal)
+@router.post("/", status_code=201, response_model=MealCreate)
 def create_meal(
-    *, meal_in: MealCreate, db: Session = Depends(deps.get_db)
-) -> dict:
-    """
-    Добавление блюда.
-    """
-    meal = meal_crud.create(db=db, obj_in=meal_in)
+    *,
+    date: schema.date = datetime.date.today(),
+    new_meal: MealCreate,
+    day_meal_repo: DayMealRepository = Depends(deps_day_meal_repo)
+) -> MealCreate:
+    """Добавление блюда."""
+    return day_meal_repo.create_meal(date=date, new_meal=new_meal)
 
-    return meal
+
+@router.patch("/", status_code=201, response_model=MealUpdate)
+def update_day(
+    *, id: int, update_meal: MealUpdate, day_meal_repo: DayMealRepository = Depends(deps_day_meal_repo)
+) -> MealUpdate:
+    """Изменение блюда."""
+    return day_meal_repo.update_meal(id=id, update_meal=update_meal)

@@ -1,12 +1,17 @@
 from typing import Generator
 
-from app.db.session import SessionLocal
+from fastapi import Depends
+from sqlalchemy.orm import Session
+
+from src.core.db.session import SessionLocal
+from src.core.repository import DayMealRepository
 
 
 def get_db() -> Generator:
-    db = SessionLocal()
-    db.current_user_id = None
-    try:
+    with SessionLocal() as db:
         yield db
-    finally:
-        db.close()
+
+
+def day_meal_repo(db: Session = Depends(get_db, use_cache=True)) -> DayMealRepository:
+    """DI для репозитория DayMealRepository."""
+    return DayMealRepository(db)

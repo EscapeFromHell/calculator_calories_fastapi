@@ -1,62 +1,30 @@
-from typing import Any, Optional
+import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends
+from pydantic import schema
 
-from app.api import deps
-from app.core.config import settings as s
-from app.crud.crud_day import day as day_crud
-from app.schemas.day import Day, DayCreate, DayMeal, DaySearchResults
-
+from src.core.repository import DayMealRepository
+from src.core.schemas import Day, DayCreate, DayUpdate
+from src.deps import day_meal_repo as deps_day_meal_repo
 
 router = APIRouter()
 
 
-@router.get("/{day_id}", status_code=200, response_model=DayMeal)
-def fetch_day(*, day_id: int, db: Session = Depends(deps.get_db),) -> Any:
-    """
-    Получение списка блюд и общего числа калорий за день.
-    """
-    day = day_crud.get(db=db, id=day_id)
-    if not day:
-        raise HTTPException(
-            status_code=404, detail=f"Day with ID {day_id} not found"
-        )
-    meals = day.meals
-    daily_calories = 0
-    for meal in meals:
-        daily_calories += meal.calories
-    day.daily_calories = daily_calories
-    return day
+@router.get("/", status_code=200, response_model=Day)
+def get_day(
+    *, date: schema.date = datetime.date.today(), day_meal_repo: DayMealRepository = Depends(deps_day_meal_repo)
+) -> Day:
+    """Получение списка блюд и общего числа калорий за день."""
+    return day_meal_repo.get_day(date=date)
 
 
-@router.get("/search/", status_code=200, response_model=DaySearchResults)
-def search_day(
-    *,
-    date: Optional[str] = Query(None, min_length=3, example=f"{s.TODAY}"),
-    max_results: Optional[int] = 10,
-    db: Session = Depends(deps.get_db),
-) -> dict:
-    """
-    Поиск дней.
-    """
-    days = day_crud.get_multi(db=db, limit=max_results)
-    if not date:
-        return {"results": days}
-
-    results = filter(
-        lambda day: date in day.date, days
-    )
-    return {"results": list(results)[:max_results]}
+@router.post("/", status_code=201, response_model=DayCreate)
+def create_day(*, new_day: DayCreate, day_meal_repo: DayMealRepository = Depends(deps_day_meal_repo)) -> DayCreate:
+    """Добавление нового дня."""
+    return day_meal_repo.create_day(new_day=new_day)
 
 
-@router.post("/", status_code=201, response_model=Day)
-def create_day(
-    *, day_in: DayCreate, db: Session = Depends(deps.get_db)
-) -> dict:
-    """
-    Добавление дня.
-    """
-    day = day_crud.create(db=db, obj_in=day_in)
-
-    return day
+@router.patch("/", status_code=201, response_model=DayUpdate)
+def update_day(*, update_day: DayUpdate, day_meal_repo: DayMealRepository = Depends(deps_day_meal_repo)) -> DayUpdate:
+    """Изменение дня."""
+    return day_meal_repo.update_day(update_day=update_day)

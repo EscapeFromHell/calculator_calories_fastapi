@@ -1,11 +1,9 @@
 import datetime
-
-from pydantic import BaseModel
-from pydantic import schema, PositiveInt, PositiveFloat
-
 from typing import Sequence
 
-from src.core.schemas import MealBase
+from pydantic import BaseModel, PositiveFloat, schema
+
+from src.core.schemas.meal import Meal
 
 
 class DayBase(BaseModel):
@@ -29,5 +27,5 @@ class DayInDB(DayBase):
 
 
 class Day(DayInDB):
-    meals: Sequence[MealBase]
-    calories_sum: PositiveInt
+    meals: Sequence[Meal]
+    calories_sum: int

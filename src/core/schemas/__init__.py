@@ -1,2 +1,2 @@
 from .day import Day, DayCreate, DayUpdate
-from .meal import MealBase, MealCreate, MealUpdate
+from .meal import Meal, MealCreate, MealUpdate, MealWithDate

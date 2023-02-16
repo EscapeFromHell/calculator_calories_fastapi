@@ -1,40 +1,33 @@
 version: "3"
 services:
-  db:
-    image: postgres:14  # https://hub.docker.com/_/postgres
+  calorie-calculator-db:
+    image: postgres:14
     ports:
-      - "5433"
+      - "5432:5432"
     volumes:
       - app-db-data:/var/lib/postgresql/data/pgdata
     environment:
-      # This optional variable can be used to define another location -
-      # like a subdirectory - for the database files.
       - PGDATA=/var/lib/postgresql/data/pgdata
-      - POSTGRES_SERVER=db
-      # This optional environment variable is used in conjunction with POSTGRES_PASSWORD
-      # to set a user and its password. This variable will create the specified user with superuser
-      # power and a database with the same name. If it is not specified, then the default user of
-      # postgres will be used.
+      - POSTGRES_SERVER=calorie-calculator-db
       - POSTGRES_USER=postgres
-      # This environment variable is required for you to use the PostgreSQL image.
-      # It must not be empty or undefined. This environment variable sets the superuser
-      # password for PostgreSQL. The default superuser is defined by the POSTGRES_USER environment variable.
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=app
+      - POSTGRES_DB=calorie-calculator
+    restart: always
 
-  web:
+  calorie-calculator:
     build:
       context: ./
       dockerfile: Dockerfile
     depends_on:
-      - db
+      - calorie-calculator-db
     ports:
       - "8001:8001"
     volumes:
-      - ./app:/app
+      - ./:/src
     environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/app
-      - DATABASE_TEST_URL=postgresql://postgres:password@db:5432/app_test
+      - DATABASE_DSN=postgresql://postgres:password@calorie-calculator-db:5432/calorie-calculator
       - BACKEND_CORS_ORIGINS=["http://localhost:3000","http://localhost:8000"]
+    restart: always
+
 volumes:
   app-db-data:

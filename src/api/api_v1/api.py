@@ -1,8 +1,7 @@
 from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import day, meal
-
+from src.api.api_v1.endpoints import router_day, router_meal
 
 api_router = APIRouter()
-api_router.include_router(day.router, prefix="/days", tags=["days"])
-api_router.include_router(meal.router, prefix="/meals", tags=["meals"])
+api_router.include_router(router_day, prefix="/days", tags=["days"])
+api_router.include_router(router_meal, prefix="/meals", tags=["meals"])

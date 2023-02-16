@@ -1,10 +1,10 @@
-from app.crud.base import CRUDBase
-from app.models.meal import Meal
-from app.schemas.meal import MealCreate, MealUpdate
+from src.core.crud import CRUDBase
+from src.core.models import Meal
+from src.core.schemas import MealCreate, MealUpdate
 
 
 class CRUDMeal(CRUDBase[Meal, MealCreate, MealUpdate]):
     ...
 
 
-meal = CRUDMeal(Meal)
+crud_meal = CRUDMeal(Meal)

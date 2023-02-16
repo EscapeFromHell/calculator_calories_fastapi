@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.api_v1 import api_router
+from src.api import api_router
 from src.config import settings
 
 root_router = APIRouter()

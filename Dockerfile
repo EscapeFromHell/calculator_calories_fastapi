@@ -1,12 +1,12 @@
 FROM python:3.10
 
-RUN mkdir /app
+RUN mkdir /src
 
-COPY app/ /app
+COPY ./ /src
 
-WORKDIR /app
+WORKDIR /src
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/src
 
 RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python && \
     cd /usr/local/bin && \
@@ -15,4 +15,4 @@ RUN curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python
 
 RUN poetry install
 
-CMD ["./run.sh"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8001", "src.main:app"]
