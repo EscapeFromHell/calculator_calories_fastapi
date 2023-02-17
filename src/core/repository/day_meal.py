@@ -30,7 +30,7 @@ class DayMealRepository(Repository):
         """Изменение дня."""
         day_in_db = crud_day.get_day(db=self.db, date=update_day.date)
         if not day_in_db:
-            raise HTTPException(status_code=400, detail=f"Day {update_day.date} not found")
+            raise HTTPException(status_code=404, detail=f"Day {update_day.date} not found")
         day = crud_day.update(db=self.db, db_obj=day_in_db, obj_in=update_day)
         return DayUpdate(date=day.date, weight=day.weight)
 
@@ -58,6 +58,6 @@ class DayMealRepository(Repository):
         """Изменение блюда."""
         meal_in_db = crud_meal.get(db=self.db, id=id)
         if not meal_in_db:
-            raise HTTPException(status_code=400, detail=f"Meal with ID: {id} not found")
+            raise HTTPException(status_code=404, detail=f"Meal with ID: {id} not found")
         meal = crud_meal.update(db=self.db, db_obj=meal_in_db, obj_in=update_meal)
         return MealUpdate(name=meal.name, calories=meal.calories)
